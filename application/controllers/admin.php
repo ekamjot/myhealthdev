@@ -60,7 +60,7 @@ class Admin extends CI_Controller {
           $this->form_validation->set_rules("user_name", "Username", "trim|required");
           $this->form_validation->set_rules("password", "Password", "trim|required");
 
-          if ($this->form_validation->run() == FALSE)
+	 if ($this->form_validation->run() == FALSE)
           {
                 $this->load->view('template_s',$data);
           }
@@ -102,7 +102,9 @@ class Admin extends CI_Controller {
                {
                    redirect('admin/login');
                }
+         
           }
+         
      }
 
       /*
@@ -560,6 +562,7 @@ class Admin extends CI_Controller {
 		 $appoin_detail = '';
 		 //echo "<pre>"; print_r($taskse); die;
 		 foreach($taskse as $task){
+			   // print_r($task);
 			  $appoin_detail = '';
 					if(($task['package_id'] != '0') && ($task['services_id'] != '0')){
 						if(!empty($task['package_id']))
@@ -595,12 +598,17 @@ class Admin extends CI_Controller {
 						{
 								$locations = $this->admin_model->single_data_of_table(array('id'=>$task['loc_id']),'locations');
 								$payment = $this->admin_model->single_data_of_table(array('appointment_id'=>$task['id']),'payment');
-
+                                 // print_r($payment);
+								 // echo "location";
+                                 // print_r($locations);
 								$appoin_detail.= '<strong>Location</strong><br>';
 								if(!empty($locations)){
+								
 								  $appoin_detail.= $locations['address'].' : '.$payment['amount']."<br>";
+									
 							   }
 						}
+						
 						$tasks[$i]['appointment_detail'] =  $appoin_detail;
 					}
 					$tasks[$i]['start'] = $task['booking_date'].' '.$task['booking_s_time'];
@@ -730,10 +738,18 @@ class Admin extends CI_Controller {
 			  exit;*/
 			  redirect('admin/profile?');
 		    }
-			if($_POST['change']){
+			$err="";
+			if(isset($_POST['change'])){
+				$id=$_POST['id'];
+				$old=md5($_POST['oldpswd']);
+					// print_r($_POST);
+			// return;
+		     $a3= $this->admin_model->get_userOldPswd($id,$old,'users');
+			 if($a3>0){
+			if(isset($_POST['password'])!==""){
 			if($_POST['password']==$_POST['cpassword']){
 			$pswd=md5($_POST['password']);
-			$id=$_POST['id'];
+			
 			$type=$_POST['type'];
 			$data1 = array('password' => $pswd );
 			  // print_r($data);
@@ -744,6 +760,12 @@ class Admin extends CI_Controller {
 			  else { 
 			   $err='<p style="color:red;">Password not match</p>';
 			  }
+			  }
+		 else { 
+			   $err='<p style="color:red;">Fill Password Blank</p>';
+			  }
+			   }
+            else{  $err='<p style="color:red;">Old Passsword Incorrect</p>';}
 		
 		 
         }
@@ -1526,15 +1548,11 @@ class Admin extends CI_Controller {
 			   redirect('admin/login');
 		   }
           }
-	 public function forget()
-           {
-		       $data=2;
-		 
-                $this->load->view('admin/forgetpass',$data);
-       
-           } 
+
      public function ForgotPassword()
          {
+			
+			 if($_POST['change']){
          $email = $this->input->post('email');      
          $findemail = $this->admin_model->ForgotPassword($email);  
          if($findemail){
@@ -1542,18 +1560,76 @@ class Admin extends CI_Controller {
 			 // print_r($findemail);
 			 
           $this->admin_model->sendpassword($findemail);        
-           }else{
+           }
+		   else{
           $this->session->set_flashdata('msg',' Email not found!');
-          redirect(base_url().'admin/Login');
+         
       }
+	   redirect('admin/login');
+			 }
+   } 
+   public function Ressetpassword($resetlink)
+         {
+		
+	 if(isset($resetlink)){
+         	
+         $fuser = $this->admin_model->dbResetpassword($resetlink); 
+    	
+  
+				
+         if($fuser){
+
+			 $date = date('Y-m-d H:i:s');  
+		 $dbdate=$fuser['link_date'];	
+		 // $dbdate="2013-11-11 16:27:21";	
+         
+		 $timediff = strtotime($date) - strtotime($dbdate);
+			if($timediff > 86400){ 
+			
+				 $this->session->set_flashdata('msg',' Link Expired');
+				 $data['error']="<h1>Link Expired</h1>";
+                 $this->load->view('admin/forgetpass',$data);
+		  	
+				}
+				else
+				{
+				 $data['fuser']=$fuser;
+				$this->load->view('admin/forgetpass',$data);
+			}		
+			  
+           
+           }
+		   else{
+         $this->session->set_flashdata('msg',' Invalid Link');
+       redirect('admin/login');
+		  		
+      } 
+			 } 
    }
- public function test()
+
+	  public function resetpass()
      {
-		$data=$this->admin_model->dbget_user();print_r($data	);
-	 }
+		
+	if($_POST['change'])
+	  { 
+	   if($_POST['new_pass']==$_POST['c_pass'])
+	      {
+		   $pswd=md5($_POST['new_pass']);
+		   $id=$_POST['id'];
+		
+		   $data = array(
+	      'password' => $pswd,
+	      );
+	     $this->admin_model->update_password($id,$data,'users');
+		 $this->session->set_flashdata('msg', '<div class="alert alert-danger text-center">Password Changed.</div>');
+		redirect('admin/login');
+	      }
+	    }
+	}
 	 public function changepass()
      {
-		 echo"<pre>";print_r($_POST);echo"</pre>";  
+		 // echo"<pre>";print_r($_POST);echo"</pre>";  
+		 // return;
 		 if($_POST['change']){ if($_POST['password']==$_POST['cpassword']){
 		   $pswd=md5($_POST['password']);
 		   $id=$_POST['id'];
@@ -1562,7 +1638,30 @@ class Admin extends CI_Controller {
 	   'password' => $pswd,
 	   );
 	  $this->admin_model->update_password($id,$data,'users');
-	}}}
+	   }}
+	}
 
-
+    public function appointments_list()
+          {
+			  if($this->session->userdata('user_type')=="doctor"){
+				  echo "dr";
+			  }
+			   $data['reports']=$this->admin_model->check_appointments('doctor',2);
+			
+		 $this->load->view('admin/appointments_list',$data);
+		  }
+	public function test()
+          {
+				  // $data=$this->admin_model->dbget_user();
+				  $data=$this->admin_model->check_appointments('doctor',2);
+				  // $data=$this->admin_model->createNewField();
+				// your first date coming from a mysql database (date fields) 
+			/* 	$dateA = '2013-11-12 23:10:30'; $dateB = '2013-11-11 16:27:21'; 
+				echo  $date = date('Y-m-d H:i:s');$timediff = strtotime($dateA) - strtotime($dateB);
+           echo $timediff;if($timediff > 86400){ 
+				echo 'more than 24 hours';}else
+				{echo 'less than 24 hours';
+			}// return $result;
+					 */echo"<pre>";print_r($data);echo"</pre>";
+		}
 }
