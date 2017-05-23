@@ -135,11 +135,11 @@
                     </div>
                      <div class="form-group">
                         <label for="firstname">Service Start Time</label>
-                        <input type="text" class="form-control"  placeholder="Service Start Time (h:m)" name="service_start_time" value="<?php echo $user['service_start_time']; ?>" required>
+                        <input type="time" class="form-control"  placeholder="Service Start Time (h:m)" name="service_start_time" value="<?php echo $user['service_start_time']; ?>" required>
                     </div>
                      <div class="form-group">
                         <label for="firstname">Service End Time</label>
-                        <input type="text" class="form-control"  placeholder="Service End Time (h:m)" name="service_end_time" value="<?php echo $user['service_end_time']; ?>" required>
+                        <input type="time" class="form-control"  placeholder="Service End Time (h:m)" name="service_end_time" value="<?php echo $user['service_end_time']; ?>" required>
                     </div>
                     <input type="submit" class="btn btn-primary" value="Submit" name="submit">
                 </form>
@@ -270,11 +270,11 @@
                     </div>
                      <div class="form-group">
                         <label for="firstname">Service Start Time</label>
-                        <input type="text" class="form-control"  placeholder="Service Start Time (h:m)" name="service_start_time" value="<?php echo $user['service_start_time']; ?>" required>
+                        <input type="time" class="form-control"  placeholder="Service Start Time (h:m)" name="service_start_time" value="<?php echo $user['service_start_time']; ?>" required>
                     </div>
                      <div class="form-group">
                         <label for="firstname">Service End Time</label>
-                        <input type="text" class="form-control"  placeholder="Service End Time (h:m)" name="service_end_time" value="<?php echo $user['service_end_time']; ?>" required>
+                        <input type="time" class="form-control"  placeholder="Service End Time (h:m)" name="service_end_time" value="<?php echo $user['service_end_time']; ?>" required>
                     </div>
                     <input type="submit" class="btn btn-primary" value="Submit" name="submit">
                 </form>
@@ -295,16 +295,22 @@
         <h4 class="modal-title">Change Password</h4>
       </div>
       <div class="modal-body">
-    <form role="form" method="post" id="addcategory317" action="<?php echo site_url('admin/profile');?>" enctype="multipart/form-data"><div class="form-group">
+    <form role="form" method="post" id="addcategory317" action="<?php echo site_url('admin/profile');?>" enctype="multipart/form-data">
+                   <div class="form-group">
+                        <label for="firstname">Old Password</label>
+                        <input type="text" class="form-control"   placeholder="Old Password" name="oldpswd" value="" required>
+                    </div>	              
+				  <div class="form-group">
                         <label for="firstname">Password</label>
                         <input type="hidden" class="form-control"   placeholder="Change Password" name="id" value="<?php echo $user['id']; ?>"> 
 						<input type="hidden" class="form-control"   placeholder="Change Password" name="type" value="<?php echo $user['type']; ?>">
-                        <input type="text" class="form-control"   placeholder="Change Password" name="password" value="">
+                        <input type="text" class="form-control"   placeholder="Change Password" name="password" required >
                     </div>
 					<div class="form-group">
                         <label for="firstname">Confirm Password</label>
-                        <input type="text" class="form-control"   placeholder="Change Password" name="cpassword" value="">
-                    </div>	<div class="form-group">
+                        <input type="text" class="form-control"   placeholder="Change Password" name="cpassword" value="" required>
+                    </div>
+					<div class="form-group">
                        
                         <input type="submit" class="form-control"   name="change" value="change">
                     </div>
