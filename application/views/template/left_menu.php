@@ -37,6 +37,8 @@
                         </li>
                         <?php } ?>
                         <li><a class="ajax-link" href="<?php echo base_url(); ?>admin/patient_list"><i class="glyphicon glyphicon-user"></i><span> Patients</span></a>
+                        </li>	
+			    <li><a class="ajax-link" href="<?php echo base_url(); ?>admin/appointments_list"><i class="glyphicon glyphicon-calendar"></i><span> Appointments</span></a>
                         </li>
                         <!--<li><a class="ajax-link" href="<?php echo base_url(); ?>admin/location_list"><i class="glyphicon glyphicon-home"></i><span> Locations</span></a>
                         </li>-->
