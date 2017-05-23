@@ -29,7 +29,7 @@
                         <input id="btn_login" name="btn_login" type="submit" class="btn btn-primary" value="Login" />
                     </p>
 					<p class="center col-md-5">
-                       <a type="button" class="" data-toggle="modal" data-target="#myModal">Forget Password</a>
+                       <a  class="btn" data-toggle="modal" data-target="#myModal">Forgot Password</a>
                     </p>
                     
                      <?php echo $this->session->flashdata('msg'); ?>
@@ -54,7 +54,7 @@
                     <td>
                 <input type="email" name="email" id="email" style="width:250px" required>
                  </td>
-                    <td><input type = "submit" value="submit" class="button"></td>
+                    <td><input type = "submit" value="submit" name="change" class="button"></td>
                     </tr>
                    
                     </tbody>               </table></form> 
