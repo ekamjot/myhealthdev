@@ -549,45 +549,76 @@ class admin_model extends CI_Model {
 		 $result=$this->db->query("SELECT p.amount,s.service_name FROM payment as p INNER JOIN services as s ON p.service_id=s.id WHERE p.appointment_id='$appointment_id' AND p.service_id='$service_id'")->row_array();
 		 return $result;
 	 }
-	 /*---------my code------------*/
-	   function dbget_user($usr, $pwd)
+	 /*---------ekamjot code------------*/
+	   function dbget_user()
      {
-          $sql = "select * from users  ";
+          $sql = "select * from users where email='mary@gmail.com'";
           $query = $this->db->query($sql);
           return $query->row_array();
-          // $data = array('password' => md5('admin1'));
-          // $this->db->where('id', 1);
+          // $data = array('password' => md5('admin@gmail.com'));
+        // /*  $this->db->where('id', 1);*/
           // $this->db->where('email', 'admin@gmail.com');
           // $this->db->update('users', $data);
-			 } 
-	public function update_password($id,$data,$table_name) {
-     $this->db->where('id', $id);
-	 if($this->db->update($table_name, $data)) return true;
-	 else return false;
+	 }   
+	 function get_userOldPswd($id,$old,$table_name)
+     {
+          $sql = "select * from users where id=".$id." AND password='".$old."' ";
+          $query = $this->db->query($sql);
+         $query->row_array();
+			  return $rowcount = $query->num_rows();
+        
+        /*  $this->db->where('id', 1);*/
+        
+	 } 
+	  function createNewField()
+     {
+          // $sql = "ALTER TABLE users ADD forget_date VARCHAR( 255 ) after forget_link";
+          $sql = "ALTER TABLE users ADD `link_date`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER  forget_link";
+		  // ALTER TABLE `content` ADD `link_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `status`;
+          $query = $this->db->query($sql);
+         $query->row_array();
+			  // return $rowcount = $query->num_rows();
+        
+        /*  $this->db->where('id', 1);*/
+        
+	 } 
+	 public function update_password($id,$data,$table_name)
+	 {
+		 $this->db->where('id', $id);
+		 if($this->db->update($table_name, $data)) return true;
+		 else return false;
 	}
-  //funtion to get email of user to send password
- public function ForgotPassword($email)
- {
+	//funtion to get email of user to send password
+	public function ForgotPassword($email)
+	{
         $this->db->select('email');
         $this->db->from('users'); 
         $this->db->where('email', $email); 
         $query=$this->db->get();
         return $query->row_array();
- }
- public function sendpassword($data)
-{
+	}
+	
+	public function sendpassword($data)
+	{
         $email = $data['email'];
         $query1=$this->db->query("SELECT *  from users where email = '".$email."' ");
         $row=$query1->result_array();
+	// print_r($row);
         if ($query1->num_rows()>0)
       
-{
-        $passwordplain = "";
-     $passwordplain  = rand(999999999,9999999999);
-   $newpass['password'] = md5($passwordplain);
-	   $this->db->where('email', $email);
-        $this->db->update('users', $newpass); 
-	    $this->load->library('email');
+		{
+       $passwordplain = "";
+    
+       $passwordplain2  = rand(9999999,9999999999999999999999);
+	   // $reseturl='http://playtripapp.com'.base_url().'admin/Ressetpassword/'. $passwordplain2.'';
+	   $reseturl='http://playtripapp.com/wordpress/myhealthdev/admin/Ressetpassword/'. $passwordplain2.'';
+	  
+	  $Uid= $row[0]['id'];
+       $newpass['forget_link'] =$passwordplain2;
+        $newpass['forget_date'] = date('y-m-d');
+	   $this->db->where('id', $Uid);
+       $this->db->update('users', $newpass); 
+	   $this->load->library('email');
 	               $config = array (
 					  'mailtype' => 'html',
 					  'charset'  => 'utf-8',
@@ -595,10 +626,12 @@ class admin_model extends CI_Model {
 					   );
 				   $this->email->initialize($config);
 				   $this->email->from('example@vooap.com', 'Myhealth');
-				   $this->email->to($email);
+				   // $this->email->to($email);
+				   $this->email->to("testplanet317@gmail.com");
+				  
 				   $this->email->subject('Welcome To Myhealth');
-				   $mail_message='Dear '.$row[0]['first_name'].','. "\r\n";
-        $mail_message.='Thanks for contacting regarding to forgot password,<br> Your <b>Password</b> is <b>'.$passwordplain.'</b>'."\r\n";
+				   $mail_message='Dear ,'. "\r\n";
+         $mail_message.='Thanks for contacting regarding to forgot password,<br> Your <b>Password</b> is '.$reseturl.''."\r\n";
         $mail_message.='<br>Please Update your password.';
         $mail_message.='<br>Thanks & Regards';
         $mail_message.='<br>Your company name'; 
@@ -606,18 +639,37 @@ class admin_model extends CI_Model {
 			
 	   
       
-if (!$this->email->send()) {
-     $this->session->set_flashdata('msg','Failed to send password, please try again!');
-} else {
-   $this->session->set_flashdata('msg','Password sent to your email!');
-}
-  redirect(base_url().'admin/login');        
-}
-else
-{  
- $this->session->set_flashdata('msg','Email not found try again!');
- redirect(base_url().'admin/login');
-}
-}
+		if (!$this->email->send()) {
+			 $this->session->set_flashdata('msg','Failed to send password, please try again!');
+		} 
+		else {
+		   $this->session->set_flashdata('msg','Link  Send To Your Email. Please Check Your Mail');
+		}
+		  redirect('admin/login');        
+		}
+		else
+		{  
+		 $this->session->set_flashdata('msg','Email not found try again!');
+		 redirect(base_url().'admin/login');
+		}
+   }
+   public function dbResetpassword($link)
+	{
+		
+        $this->db->select('*');
+        $this->db->from('users'); 
+        $this->db->where('forget_link', $link); 
+        $query=$this->db->get();
+        return $query->row_array();
+	}  
+	public function dbappointments_list($link)
+	{
+		
+        $this->db->select('*');
+        $this->db->from('users'); 
+        $this->db->where('forget_link', $link); 
+        $query=$this->db->get();
+        return $query->row_array();
+	}
 	
 }
