@@ -162,7 +162,14 @@ class Webservice_model extends CI_Model
 		$res=$query->row_array();
 		return $res['id'];
 	 }
-
+	 //get id of user using email
+	 public function get_user_id_new($email)
+	 {
+		$sql = "select u.id, a.country_code ,u.phoneno from users as u INNER JOIN patient_tbl as a ON a.user_id = u.id WHERE u.email ='".$email."'";
+          $query = $this->db->query($sql);
+	return 	$res=$query->row_array();
+		// return $res['id'];
+	 }
 
 	  //get clinic and doctor in english version
 	 public function get_all_clinics_using_services($lang,$services_id )
@@ -245,6 +252,14 @@ class Webservice_model extends CI_Model
 	 $this->db->update('patient_tbl',array('random_number'=>$data));
 	 return 1;
 	 }
+	 //update unique number for forgot password using email 
+	public function update_forgotNew($email,$data)
+	 {
+	 $user_id = $this->get_user_id_new($email);
+	$update= $this->db->update('patient_tbl',array('random_number'=>$data));
+	   $user_id['status']=1;
+	 return $user_id;
+	 }
 
 	//update unique number for change phone number
 	public function update_rand_no($user_id,$data)
@@ -259,6 +274,19 @@ class Webservice_model extends CI_Model
 	 function check_random_number($tel_no , $code,$random_number){
 		 $user_id = $this->get_user_id($tel_no,$code);
 		$this->db->where(array('user_id'=>$user_id,'random_number'=>$random_number));
+		$query = $this->db->get('patient_tbl');
+		$res=$query->row_array();
+		if($query->num_rows()==0){
+			return 0;
+		}
+        else{
+			return $res['user_id'];
+		}
+	} 
+	//check user who change password using email 
+	 function check_random_numberNew($email,$random_number){
+		 $user_id = $this->get_user_id_new($email);
+		$this->db->where(array('user_id'=>$user_id['id'],'random_number'=>$random_number));
 		$query = $this->db->get('patient_tbl');
 		$res=$query->row_array();
 		if($query->num_rows()==0){
