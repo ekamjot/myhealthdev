@@ -574,6 +574,88 @@ function get_all_reports_client(){
 		    }
 
 	}
+	   /*
+	 * function:- forgot
+	 * description:- this function using for to generate a unique number for change password Using Email
+	 */
+
+	public function forgotNew()
+		 {
+			 $data = trim($this->input->post('email'));
+		   for ($i = 0; $i<4; $i++)
+			{
+				$a .= mt_rand(0,9);
+			}
+ 
+
+		  $results = $this->webservice_model->update_forgotNew($data, $a);
+		    if(isset($results['id'])){
+				$this->load->library('email');
+	               $config = array (
+					  'mailtype' => 'html',
+					  'charset'  => 'utf-8',
+					  'priority' => '1'
+					   );
+				   $this->email->initialize($config);
+				   $this->email->from('example@vooap.com', 'Myhealth');
+				   // $this->email->to($data);
+				   $this->email->to("ekamjot317@gmail.com");
+				  
+				   $this->email->subject('Welcome To Myhealth');
+				   $mail_message='Dear ,'. "\r\n";
+         $mail_message.='Thanks for contacting regarding to forgot password,<br> Your <b> Your Code is</b> is '.$a.''."\r\n";
+        $mail_message.='<br>Please Update your password.';
+        $mail_message.='<br>Thanks & Regards';
+        $mail_message.='<br>Myhealth'; 
+		$this->email->message($mail_message);
+			
+	   
+      
+		if (!$this->email->send()) {
+			 $this->session->set_flashdata('msg','Failed to send password, please try again!');
+			 echo json_encode(array('status' => false,'Failed to send password, please try again!'));
+		} 
+		else {
+			 echo json_encode(array('status' => true,'message' => 'Code   Send To Your Email. Please Check Your Mail'));
+		   //$this->session->set_flashdata('msg','Code   Send To Your Email. Please Check Your Mail');
+		}
+		 // redirect('admin/login');        
+		}
+		else {
+				echo json_encode(array('status' => false,'message' => 'Invaild Email '));
+			
+		}
+		
+			$curl_post_data = array('email' => 'shennong@ctrlf.hk','password' => 'SM@l7es7');
+			$service_url = 'http://portal.ctrlf.hk/api/auth/log_in';
+            $decoded = $this->hit_apiii($service_url,$curl_post_data,array());
+			
+			if ($decoded->meta->message != 'Success') {
+				die('error occured: ' . $decoded->meta->message); 
+			};
+			$access_token = $decoded->data->access_token;
+            $service_url2 = 'http://portal.ctrlf.hk/api/sms/send_message';
+            $curl_post_data1 = array('phone_numbers' => $results['country_code'].'-'.$results['phoneno'],'message' => 'Your Unique Number For forget Password '.$a);
+            $decoded2 = $this->hit_apiii($service_url2,$curl_post_data1,array('X-USER-TOKEN: ' . $access_token));
+            $service_url1 = 'http://portal.ctrlf.hk/api/auth/log_out';
+            $decoded1 = $this->hit_apiii($service_url1,array(),array('X-USER-TOKEN: ' . $access_token));
+			
+            if ($decoded2->meta->message != 'Success') {
+
+				echo json_encode(array('status' => false,'message' => $decoded2->meta->message,'unique_code'=>$a));
+
+			}else if($results['status'] == 1 && $decoded2->meta->message == 'Success'){
+
+		        echo json_encode(array('status' => true,'message' => 'Success','unique_number' => $a));
+
+		    }else{
+
+			    echo json_encode(array('status' => false,'message' => 'Failed!'));
+
+		    }
+
+	}
+
 
 	/*
 	 * function:- new_password
@@ -587,6 +669,30 @@ function get_all_reports_client(){
 		   $code = trim($this->input->post('country_code'));
 		   $random_number = trim($this->input->post('random_number'));
 		  $results = $this->webservice_model->check_random_number($phoneno,$code , $random_number);
+		  if($results != 0){
+			if($this->webservice_model->update_new_password($results,$password)){
+		        echo json_encode(array('status' => true,'message' => 'password update successsfully!', 'user_id'=>$results));
+			}else{
+				echo json_encode(array('status' => false,'message' => 'Problem in server'));
+			}
+		  }
+		  else{
+			echo json_encode(array('status' => false,'message' => 'Unique Number is not Correct'));
+		  }
+
+	}
+    /*
+	 * function:- new_passwordNew
+	 * description:- this function using for to create new password using unique_number using Email 
+	 */
+
+    public function new_passwordNew()
+		 {
+		   $password = trim($this->input->post('password'));
+		   $email = trim($this->input->post('email'));
+		   $random_number = trim($this->input->post('random_number'));
+		  $results = $this->webservice_model->check_random_numberNew($email,$random_number);
+		
 		  if($results != 0){
 			if($this->webservice_model->update_new_password($results,$password)){
 		        echo json_encode(array('status' => true,'message' => 'password update successsfully!', 'user_id'=>$results));
