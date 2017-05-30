@@ -60,12 +60,32 @@
 </table>
 </form>
 *********************************************************************************</br>
+<h3>(3.1)Forgot Password(forgot)2</h3>
+
+<form action="<?php echo base_url()?>webservice/forgotNew" method="post" enctype="multipart/form-data">
+<table>
+<tr><td>Email<span style="color: #FF0000;">*</span><input type="text" name="email" required>email</td></tr>
+<tr><td><input type="submit" name="submit" value="Submit"></input></td></tr>
+</table>
+</form>
+*********************************************************************************</br>
 <h3>(4)New Password(new_password)</h3>
 
 <form action="<?php echo base_url()?>webservice/new_password" method="post" enctype="multipart/form-data">
 <table>
 <tr><td>country_code<span style="color: #FF0000;">*</span><input type="text" name="country_code" >country_code</td></tr
 ><tr><td>Phone Number<span style="color: #FF0000;">*</span><input type="text" name="phoneno" required>phoneno</td></tr>
+<tr><td>Unique number<span style="color: #FF0000;">*</span><input type="text" name="random_number" required>random_number</td></tr>
+<tr><td>New password<span style="color: #FF0000;">*</span><input type="text" name="password" required>password</td></tr>
+<tr><td><input type="submit" name="submit" value="Submit"></input></td></tr>
+</table>
+</form>
+*********************************************************************************</br>
+<h3>(4.1)New Password(new_password)2</h3>
+
+<form action="<?php echo base_url()?>webservice/new_passwordNew" method="post" enctype="multipart/form-data">
+<table>
+<tr><td>Email<span style="color: #FF0000;">*</span><input type="text" name="email" required>email</td></tr>
 <tr><td>Unique number<span style="color: #FF0000;">*</span><input type="text" name="random_number" required>random_number</td></tr>
 <tr><td>New password<span style="color: #FF0000;">*</span><input type="text" name="password" required>password</td></tr>
 <tr><td><input type="submit" name="submit" value="Submit"></input></td></tr>
